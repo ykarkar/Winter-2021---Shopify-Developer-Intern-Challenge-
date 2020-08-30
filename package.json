@@ -1,0 +1,24 @@
+{
+  "name": "winter-2021---shopify-developer-intern-challenge-",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ykarkar/Winter-2021---Shopify-Developer-Intern-Challenge-.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ykarkar/Winter-2021---Shopify-Developer-Intern-Challenge-/issues"
+  },
+  "homepage": "https://github.com/ykarkar/Winter-2021---Shopify-Developer-Intern-Challenge-#readme",
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "express": "^4.17.1",
+    "multer": "^1.4.2"
+  }
+}
