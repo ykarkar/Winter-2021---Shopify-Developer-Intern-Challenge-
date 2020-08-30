@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Winter 2021 - Shopify Developer Intern Challenge</title>
+</head>
+<body>
+   
+ 
+
+<!-- <form action="/uploadfile" enctype="multipart/form-data" method="POST"> 
+   <input type="file" name="myFile" />
+   <input type="submit" value="Upload a file"/>
+</form>
+  
+
+ 
+<form action="/uploadmultiple"  enctype="multipart/form-data" method="POST">
+  Select images: <input type="file" name="myFiles" multiple>
+  <input type="submit" value="Upload your files"/>
+</form>
+   -->
+
+  <!--   PHOTO-->
+ 
+<form action="/uploadImages" enctype="multipart/form-data" method="POST"> 
+  <input type="file" name="myImage" accept="image/*" />
+  <input type="submit" value="Upload Photo"/>
+</form>
+
+<br/>
+<br/>
+
+<form action="/singlePhoto"  method="GET"> 
+    <input type="text" name="imageID" id="img"/>
+    <input type="submit" value="Find Photo"/>
+</form>
+ <br/>
+ <br/>
+<form action="/showAllPhotos" method="GET"> 
+    <input type="submit" value="Show ids of all photos"/>
+</form>
+<br/>
+<br/>
+
+
+
+
+ 
+</body>
+</html>
