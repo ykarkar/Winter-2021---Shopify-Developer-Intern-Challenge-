@@ -4,8 +4,7 @@
   <meta charset="UTF-8">
   <title>Winter 2021 - Shopify Developer Intern Challenge</title>
 </head>
-<body>
-   
+<body> 
  
 
 <!-- <form action="/uploadfile" enctype="multipart/form-data" method="POST"> 
@@ -29,6 +28,12 @@
 </form>
 
 <br/>
+
+<form action="/uploadMultipleImages" enctype="multipart/form-data" method="POST"> 
+  <input type="file" name="myImage" accept="image/*" multiple/>
+  <input type="submit" value="Upload Multiple Images"/>
+</form>
+
 <br/>
 
 <form action="/singlePhoto"  method="GET"> 
@@ -36,6 +41,12 @@
     <input type="submit" value="Find Photo"/>
 </form>
  <br/>
+
+ <form action="/deletePhoto"  method="POST"> 
+  <input type="text" name="deleteImageID" id="img"/>
+  <input type="submit" value="Delete Photo"/>
+</form>
+
  <br/>
 <form action="/showAllPhotos" method="GET"> 
     <input type="submit" value="Show ids of all photos"/>
