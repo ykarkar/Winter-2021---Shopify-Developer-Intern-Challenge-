@@ -2,6 +2,9 @@
 const express = require('express')
 const bodyParser = require('body-parser')
 const fs = require('fs');
+var LocalStorage = require('node-localstorage').LocalStorage,
+    localStorage = new LocalStorage('./scratch');
+
 
 const multer = require('multer');
 const MongoClient = require('mongodb').MongoClient
@@ -10,6 +13,8 @@ const myurl = 'mongodb://localhost:27017';
 //CREATE EXPRESS APP
 const app = express();
 app.use(bodyParser.urlencoded({ extended: true }));
+
+
 
 
 MongoClient.connect(myurl, (err, client) => {
@@ -41,11 +46,15 @@ app.get('/', function (req, res) {
 
 app.post('/uploadImages', upload.single('myImage'), (req, res) => {
     var image = fs.readFileSync(req.file.path);
+    var path = req.file.path;
+    // console.log("path " + path.toString())
+    // localStorage.setItem("imagepath", path.toString());
     var encode_image = image.toString('base64');
     var imgProperty = {
         contentType: req.file.mimetype,
         image: new Buffer(encode_image, 'base64'),
-        name: req.file.originalname
+        name: req.file.originalname,
+        path: path.toString()
     };
     db.collection('images').insertOne(imgProperty, (err, result) => {
         console.log(result)
@@ -58,14 +67,16 @@ app.post('/uploadImages', upload.single('myImage'), (req, res) => {
 app.post('/uploadMultipleImages', upload.array('myImage'), (req, res, next) => {
     const multipleimages = req.files;
     console.log("multiple images:=> " + multipleimages);
-    
+
     multipleimages.forEach(multiimg => {
-        var  imagespath = fs.readFileSync(multiimg.path);
+        var path = multiimg.path;
+        var imagespath = fs.readFileSync(multiimg.path);
         var encode_image = imagespath.toString('base64');
         var imgProperty = {
             contentType: multiimg.mimetype,
             image: new Buffer(encode_image, 'base64'),
-            name: multiimg.originalname
+            name: multiimg.originalname,
+            path: path.toString()
         };
         db.collection('images').insertOne(imgProperty, (err, result) => {
             console.log(result)
@@ -87,16 +98,33 @@ app.get('/singlePhoto', (req, res) => {
     })
 });
 
-app.delete('/deletePhoto', (req, res) => {
+
+app.get('/deletePhoto', (req, res) => {
     var filename = req.param("deleteImageID");
-    console.log("filename " + ObjectId(filename));
-    db.collection('images').remove({ '_id': ObjectId(filename) }, (err, result) => {
-        if (err) return console.log(err)
-        fs.unlink(path + req.file.filename, (err) => {
-            (err) ? console.log(err) : console.log("successfully deleted local image" + ObjectId(filename))
-        })
-        res.send('Image deleted from successfully!' + result); res.send('Image deleted from successfully!' + result);
+    // var path = localStorage.getItem("imagepath").toString();
+    var imagePath;
+    db.collection('images').findOne({ '_id': ObjectId(filename) }, (err, result) => {
+        err ? console.log(err) : imagePath= result.path.toString();
+        fs.unlink(imagePath, (err, result) => {
+            err ? console.log(err) : console.log(result);
+            db.collection('images').deleteOne({ '_id': ObjectId(filename) }, (err, result) => {
+                if (err) return console.log(err)
+                res.send('Image deleted from successfully!' + result);
+            })
+        })     
     })
+
+    
+      
+
+    // db.collection('images').findOne({ '_id': ObjectId(filename) }, (err, result) => {
+    //     const img = result.map(element => element.image);
+    //     fs.unlink(img);
+    //     console.log(img);
+    //     if (err) return console.log(err)
+
+    // })
+
 });
 
 app.get('/showAllPhotos', (req, res) => {
