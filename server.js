@@ -2,10 +2,6 @@
 const express = require('express')
 const bodyParser = require('body-parser')
 const fs = require('fs');
-var LocalStorage = require('node-localstorage').LocalStorage,
-    localStorage = new LocalStorage('./scratch');
-
-
 const multer = require('multer');
 const MongoClient = require('mongodb').MongoClient
 const ObjectId = require('mongodb').ObjectID;
@@ -44,11 +40,13 @@ app.get('/', function (req, res) {
     res.sendFile(__dirname + '/home.html');
 });
 
+app.get('/searchDeleteImages', function (req, res) {
+    res.sendFile(__dirname + '/searchDeleteImages.html');
+});
+
 app.post('/uploadImages', upload.single('myImage'), (req, res) => {
     var image = fs.readFileSync(req.file.path);
     var path = req.file.path;
-    // console.log("path " + path.toString())
-    // localStorage.setItem("imagepath", path.toString());
     var encode_image = image.toString('base64');
     var imgProperty = {
         contentType: req.file.mimetype,
@@ -84,11 +82,11 @@ app.post('/uploadMultipleImages', upload.array('myImage'), (req, res, next) => {
             console.log('saved to database')
         })
     })
-    res.send('Image stored to database successfully!');
+    res.send('All The Images Stored to Database Successfully!');
 })
 
 
-app.get('/singlePhoto', (req, res) => {
+app.get('/findImageByID', (req, res) => {
     var filename = req.param("imageID");
     console.log(filename);
     db.collection('images').findOne({ '_id': ObjectId(filename) }, (err, result) => {
@@ -98,42 +96,59 @@ app.get('/singlePhoto', (req, res) => {
     })
 });
 
+app.get('/showAllImages', (req, res) => {
+    var filename = req.param("imageID");
+    console.log(filename);
+    db.collection('images').find().toArray((err, result) => {
+        if (err) return console.log(err)
+        const imgArray = result.map(element => element.image);
+        res.contentType('image/jpeg');
+        res.send(JSON.stringify(imgArray));
+    })
+});
 
-app.get('/deletePhoto', (req, res) => {
+
+app.get('/deleteImageByID', (req, res) => {
     var filename = req.param("deleteImageID");
-    // var path = localStorage.getItem("imagepath").toString();
     var imagePath;
     db.collection('images').findOne({ '_id': ObjectId(filename) }, (err, result) => {
-        err ? console.log(err) : imagePath= result.path.toString();
+        err ? console.log(err) : imagePath = result.path.toString();
         fs.unlink(imagePath, (err, result) => {
             err ? console.log(err) : console.log(result);
             db.collection('images').deleteOne({ '_id': ObjectId(filename) }, (err, result) => {
                 if (err) return console.log(err)
-                res.send('Image deleted from successfully!' + result);
+                res.send('Image deleted Successfully!' + result);
             })
-        })     
+        })
     })
-
-    
-      
-
-    // db.collection('images').findOne({ '_id': ObjectId(filename) }, (err, result) => {
-    //     const img = result.map(element => element.image);
-    //     fs.unlink(img);
-    //     console.log(img);
-    //     if (err) return console.log(err)
-
-    // })
-
 });
 
-app.get('/showAllPhotos', (req, res) => {
+app.get('/deleteAllImages', (req, res) => {
+    var imgArray = {};
     db.collection('images').find().toArray((err, result) => {
-        const imgArray = result.map(element => element._id);
+        if(err)console.log(err)
+        imgArray = result.map(element => element.path);
+        imgArray.forEach(imgpath => {
+            fs.unlink(imgpath, (err, resul) => {
+                if(err)console.log(err)
+                db.collection('images').deleteOne({'path' : imgpath}, (err, resul) => {
+                    if(err)console.log(err) 
+                })
+            })
+        })
+        res.send('All The Images Deleted Successfully!');
+    })
+});
+
+app.get('/showAllImgId', (req, res) => {
+    var imgArray = {};
+    db.collection('images').find().toArray((err, result) => {
+        imgArray = result.map(element => element._id);
         console.log(imgArray);
         if (err) return console.log(err)
-        res.send(imgArray)
+        res.send(imgArray);
     })
+    //res.sendFile(__dirname + '/home.html',{imageIds:imgArray});
 });
 
 
