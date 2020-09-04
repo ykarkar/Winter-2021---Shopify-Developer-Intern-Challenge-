@@ -48,6 +48,19 @@
         }
       })
     }
+
+    // function findImageByID() {
+    //   const url = 'http://localhost:3000/findImageByID';
+    //   var ImgId = $('#imageID').val();
+    //   const data = { imageID: ImgId }
+    //   $.get(url,data, function (data, status) {
+    //     var img = document.createElement('img');
+    //     img =  data
+    //     document.getElementById('Image').append(img);
+    //   })
+    // }
+
+
   </script>
 </head>
 
@@ -97,26 +110,24 @@
         <div class="card-body">
           <h5 class="card-title">Display Ids of All Images</h5>
           <p class="card-text">
-            <!-- <form action="/showAllImgId" method="GET"> -->
             <button class="btn btn-primary" style="text-align:right;" onclick="showAllImgId()">Show Ids of all
               Images</button>
-          <div id ="ImageIds"></div>
-          <!-- <input class="btn btn-primary" type="submit" value="Show Ids of All Images" /> -->
-          <!-- </form> -->
+          <div id="ImageIds"></div>
           </p>
-
         </div>
       </div>
     </div>
+
     <div class="col-sm-6">
       <div class="card">
-        <div class="card-body">
+        <div class="card-body" id="Image">
           <h5 class="card-title">Open Image By ID</h5>
           <p class="card-text">
-          <form action="/findImageByID" method="GET">
-            <input type="text" name="imageID" id="img" required />
-            <input class="btn btn-primary" type="submit" value="Open Image By ID" />
-          </form>
+            <form action="/findImageByID" method="GET">
+            <input type="text" name="imageID" id="imageID" required />
+            <input class="btn btn-primary" type="submit" value="Open Image By Id" />
+            <!-- <button class="btn btn-primary" style="text-align:right;" >Open Image By Id</button> -->
+              </form>
           </p>
         </div>
       </div>
