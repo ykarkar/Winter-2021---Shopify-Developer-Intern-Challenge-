@@ -31,6 +31,23 @@
         }
       })
     }
+
+    function showAllImgId() {
+      const url = 'http://localhost:3000/showAllImgId';
+      $.get(url, function (data, status) {
+        console.log(`${data} and status is ${status}`);
+        if (data) {
+          var str = '<ul>'
+
+          data.forEach(function (ids) {
+            str += '<li>' + ids + '</li>';
+          });
+
+          str += '</ul>';
+          document.getElementById("ImageIds").innerHTML = str;
+        }
+      })
+    }
   </script>
 </head>
 
@@ -40,6 +57,7 @@
   <button class="btn btn-warning" style="text-align:right;" onclick="logout()">Log Out</button>
 
 
+  <!--  Uploading Single Image and Multiple Images Section -->
   <div class="row">
     <div class="col-sm-6">
       <div class="card bg-light mb-3">
@@ -70,6 +88,8 @@
       </div>
     </div>
   </div>
+  <!-- End of upload section -->
+
 
   <div class="row">
     <div class="col-sm-6">
@@ -77,9 +97,12 @@
         <div class="card-body">
           <h5 class="card-title">Display Ids of All Images</h5>
           <p class="card-text">
-          <form action="/showAllImgId" method="GET">
-            <input class="btn btn-primary" type="submit" value="Show Ids of All Images" />
-          </form>
+            <!-- <form action="/showAllImgId" method="GET"> -->
+            <button class="btn btn-primary" style="text-align:right;" onclick="showAllImgId()">Show Ids of all
+              Images</button>
+          <div id ="ImageIds"></div>
+          <!-- <input class="btn btn-primary" type="submit" value="Show Ids of All Images" /> -->
+          <!-- </form> -->
           </p>
 
         </div>
@@ -90,10 +113,10 @@
         <div class="card-body">
           <h5 class="card-title">Open Image By ID</h5>
           <p class="card-text">
-            <form action="/findImageByID" method="GET">
-              <input type="text" name="imageID" id="img" required />
-              <input class="btn btn-primary" type="submit" value="Open Image By ID" />
-            </form>
+          <form action="/findImageByID" method="GET">
+            <input type="text" name="imageID" id="img" required />
+            <input class="btn btn-primary" type="submit" value="Open Image By ID" />
+          </form>
           </p>
         </div>
       </div>
@@ -107,10 +130,10 @@
         <div class="card-body">
           <h5 class="card-title">Delete Image By ID</h5>
           <p class="card-text">
-            <form action="/deleteImageByID" method="GET">
-              <input type="text" name="deleteImageID" id="img" required />
-              <input class="btn btn-primary" type="submit" value="Delete Image By ID" />
-            </form>
+          <form action="/deleteImageByID" method="GET">
+            <input type="text" name="deleteImageID" id="img" required />
+            <input class="btn btn-primary" type="submit" value="Delete Image By ID" />
+          </form>
           </p>
 
         </div>
@@ -120,9 +143,9 @@
       <div class="card">
         <div class="card-body">Delete All Images</h5>
           <p class="card-text">
-            <form action="/deleteAllImages" method="GET">
-              <input class="btn btn-primary" type="submit" value="Delete All Images" />
-            </form>
+          <form action="/deleteAllImages" method="GET">
+            <input class="btn btn-primary" type="submit" value="Delete All Images" />
+          </form>
           </p>
         </div>
       </div>
@@ -131,7 +154,7 @@
 
 
 
-    <!-- <div class="card" style="width: 30rem;">
+  <!-- <div class="card" style="width: 30rem;">
       <div class="card-body">
         <h5 class="card-title">Upload Single Images</h5>
        <h4> <form  action="/uploadImages" enctype="multipart/form-data" method="POST">
@@ -148,29 +171,29 @@
       </form>
     </div> -->
 
-    <!-- <div>
+  <!-- <div>
       <form action="/showAllImgId" method="GET">
         <input class="btn btn-primary" type="submit" value="Show Ids of All Images" />
       </form>
     </div> -->
-    <!-- <div>
+  <!-- <div>
       <form action="/findImageByID" method="GET">
         <input type="text" name="imageID" id="img" required />
         <input class="btn btn-primary" type="submit" value="Open Image By ID" />
       </form>
     </div> -->
-    <!-- <div>
+  <!-- <div>
       <form action="/deleteImageByID" method="GET">
         <input type="text" name="deleteImageID" id="img" required />
         <input class="btn btn-primary" type="submit" value="Delete Image By ID" />
       </form>
     </div> -->
-    <!-- <div>
+  <!-- <div>
       <form action="/deleteAllImages" method="GET">
         <input class="btn btn-primary" type="submit" value="Delete All Images" />
       </form>
     </div> -->
- 
+
 </body>
 
 </html>

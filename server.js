@@ -185,13 +185,15 @@ app.post('/uploadMultipleImages', auth, upload.array('myImage'), (req, res, next
 app.get('/findImageByID', auth, (req, res) => {
     var filename = req.param("imageID");
     console.log(filename);
-    db.collection('images').findOne({ user_id: req.user.id }, (err, result) => {
+    db.collection('images').findOne({ '_id': ObjectId(filename) ,user_id: req.user.id }, (err, result) => {
         if (err) res.send("Image Not Available")
         if (result != null) {
             res.contentType('image/jpeg');
             res.send(result.image.buffer);
+        }else{
+            res.send("Image Not Available")
         }
-        res.send("Image Not Available")
+        
     })
 });
 
