@@ -48,14 +48,23 @@
       font-size: 30px;
     }
   </style>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <script type="text/javascript">
+      function logout(){
+        const url = 'http://localhost:3000/logout';
+        $.get(url,function(data,status){
+        console.log(`${data} and status is ${status}`); 
+        if(data === 'loggedOut'){
+          window.location.replace("/");
+        }      
+      })
+      }
+    </script>
 </head>
-<script type="text/javascript">
-</script>
-
 <body>
 
   <h3 style="text-align: center;">Welcome to shopify Winter 2021 Developer Intern Challange</h3>
-
+  <button class="button button1"  style="text-align: end;" onclick="logout()" >Log Out</button>
   <div class="gridContainer">
     <div>
       <form class="first" action="/uploadImages" enctype="multipart/form-data" method="POST">
