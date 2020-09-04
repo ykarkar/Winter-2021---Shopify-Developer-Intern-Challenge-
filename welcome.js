@@ -30,8 +30,10 @@ $(document).ready(function () {
       const data = { username: username, password: rpassword };
       $.post(url,data,function(data,status){
         console.log(`${data} and status is ${status}`);       
-        if (data) {
-
+        if (data === 'Account created') {
+          $(".signup-form").hide();
+          $(".login-form").show();
+          $(".account").text('Account created please login!')
         }
       })
     }

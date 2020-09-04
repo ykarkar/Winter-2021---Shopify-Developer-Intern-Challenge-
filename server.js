@@ -40,6 +40,7 @@ MongoClient.connect(myurl, (err, client) => {
     })
 })
 
+
 app.post('/register', function (req, res, next) {
     const username = req.param("username");
     const password = req.param("password");
@@ -49,15 +50,12 @@ app.post('/register', function (req, res, next) {
             user_name: username,
             pwdhash: hash
         }
-
         db.collection('Users').insertOne(userDetails, (err, resu) => {
             if (err) return console.log(err.field)
             console.log(resu.insertedId);
-            res.send('Account created. Please Login')           
+            res.send('Account created')
         })
-
     });
-
 })
 
 app.post('/logIn', function (req, res) {
@@ -79,11 +77,10 @@ app.post('/logIn', function (req, res) {
                         user: { id: user_id }
                     };
 
-                    jwt.sign(payload, process.env.TOKEN_SECRET, { expiresIn: 100 },
+                    jwt.sign(payload, process.env.TOKEN_SECRET, { expiresIn: 1000 },
                         (err, token) => {
                             if (err) throw err;
                             token1 = token;
-                            //res.set({ 'token': token })
                             res.send("LoggedIn");
                         }
                     );
@@ -116,12 +113,8 @@ app.get('/', function (req, res) {
 });
 
 app.get('/logout', function (req, res) {
-   token1="";
-   res.send("loggedOut"); 
-});
-
-app.get('/showHome', function (req, res) {
-    res.sendFile(__dirname + "/home.html");
+    token1 = "";
+    res.send("loggedOut");
 });
 
 app.get('/ImageRepo', auth, async (req, res) => {
@@ -143,12 +136,9 @@ app.get('/welcomejs', function (req, res) {
     res.sendFile(__dirname + "/welcome.js");
 });
 
-app.get('/searchDeleteImages', function (req, res) {
-    res.sendFile(__dirname + '/searchDeleteImages.html');
-});
 
 app.post('/uploadImages', auth, upload.single('myImage'), (req, res) => {
-    console.log("apdo user "+ JSON.stringify(req.user))
+    console.log("apdo user " + JSON.stringify(req.user))
     var image = fs.readFileSync(req.file.path);
     var path = req.file.path;
     var encode_image = image.toString('base64');
@@ -157,7 +147,7 @@ app.post('/uploadImages', auth, upload.single('myImage'), (req, res) => {
         image: new Buffer(encode_image, 'base64'),
         name: req.file.originalname,
         path: path.toString(),
-        user_id : req.user.id
+        user_id: req.user.id
     };
     db.collection('images').insertOne(imgProperty, (err, result) => {
         console.log(result)
@@ -180,7 +170,7 @@ app.post('/uploadMultipleImages', auth, upload.array('myImage'), (req, res, next
             image: new Buffer(encode_image, 'base64'),
             name: multiimg.originalname,
             path: path.toString(),
-            user_id : req.user.id
+            user_id: req.user.id
         };
         db.collection('images').insertOne(imgProperty, (err, result) => {
             console.log(result)
@@ -195,17 +185,21 @@ app.post('/uploadMultipleImages', auth, upload.array('myImage'), (req, res, next
 app.get('/findImageByID', auth, (req, res) => {
     var filename = req.param("imageID");
     console.log(filename);
-    db.collection('images').findOne({ user_id : req.user.id }, (err, result) => {
-        if (err) return console.log(err)
-        res.contentType('image/jpeg');
-        res.send(result.image.buffer);
+    db.collection('images').findOne({ user_id: req.user.id }, (err, result) => {
+        if (err) res.send("Image Not Available")
+        if (result != null) {
+            res.contentType('image/jpeg');
+            res.send(result.image.buffer);
+        }
+        res.send("Image Not Available")
     })
 });
+
 
 app.get('/showAllImages', auth, (req, res) => {
     var filename = req.param("imageID");
     console.log(filename);
-    db.collection('images').find({user_id : req.user.id}).toArray((err, result) => {
+    db.collection('images').find({ user_id: req.user.id }).toArray((err, result) => {
         if (err) return console.log(err)
         const imgArray = result.map(element => element.image);
         res.contentType('image/jpeg');
@@ -217,38 +211,42 @@ app.get('/showAllImages', auth, (req, res) => {
 app.get('/deleteImageByID', auth, (req, res) => {
     var filename = req.param("deleteImageID");
     var imagePath;
-    db.collection('images').findOne({ '_id': ObjectId(filename) }, (err, result) => {
-        err ? console.log(err) : imagePath = result.path.toString();
-        fs.unlink(imagePath, (err, result) => {
-            err ? console.log(err) : console.log(result);
-            db.collection('images').deleteOne({ '_id': ObjectId(filename) }, (err, result) => {
-                if (err) return console.log(err)
-                res.send('Image deleted Successfully!' + result);
+    db.collection('images').findOne({ '_id': ObjectId(filename), 'user_id': req.user.id }, (err, result) => {
+        if (result != null) {
+            imagePath = result.path.toString()
+            fs.unlink(imagePath, (err, result) => {
+                err ? res.send(err) : console.log(result);
+                db.collection('images').deleteOne({ '_id': ObjectId(filename), 'user_id': req.user.id }, (err, result) => {
+                    if (err) res.send('Image Not Available or Does Not Belong To User')
+                    res.send('Image deleted Successfully!' + result);
+                })
             })
-        })
+        } else {
+            res.send('Image Not Available or Does Not Belong To User')
+        }
     })
 });
 
 app.get('/deleteAllImages', auth, (req, res) => {
     var imgArray = {};
-    db.collection('images').find().toArray((err, result) => {
-        if (err) console.log(err)
+    db.collection('images').find({ user_id: req.user.id }).toArray((err, result) => {
+        if (err) res.send('Images Not Available or Does Not Belong To User')
+        if (result == null) res.send('Images Not Available or Does Not Belong To User')
         imgArray = result.map(element => element.path);
         imgArray.forEach(imgpath => {
             fs.unlink(imgpath, (err, resul) => {
                 if (err) console.log(err)
-                db.collection('images').deleteOne({ 'path': imgpath }, (err, resul) => {
-                    if (err) console.log(err)
+                db.collection('images').deleteOne({ 'path': imgpath, user_id: req.user.id }, (error, resul) => {
+                    error ? res.send(error) : res.send('All The Images Deleted Successfully!')
                 })
             })
         })
-        res.send('All The Images Deleted Successfully!');
     })
 });
 
 app.get('/showAllImgId', auth, (req, res) => {
     var imgArray = {};
-    db.collection('images').find({user_id : req.user.id}).toArray((err, result) => {
+    db.collection('images').find({ user_id: req.user.id }).toArray((err, result) => {
         imgArray = result.map(element => element._id);
         console.log(imgArray);
         if (err) return console.log(err)
