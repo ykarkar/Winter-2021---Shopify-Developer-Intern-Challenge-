@@ -16,8 +16,8 @@ const app = express();
 app.use(bodyParser.urlencoded({ extended: true }));
 const dotenv = require('dotenv');
 // var encryptor = require('file-encryptor');
-let key = 'MySuperSecretKey';
- key=crypto.createHash('sha256').update(String(key)).digest('base64').substr(0, 32);
+let key = 'thiskjdbkjcbwel';
+key = crypto.createHash('sha256').update(String(key)).digest('base64').substr(0, 32);
 
 const encrypt = (buffer) => {
     // Create an initialization vector
@@ -39,7 +39,7 @@ const decrypt = (encrypted) => {
     // Actually decrypt it
     const result = Buffer.concat([decipher.update(encrypted), decipher.final()]);
     return result;
- };
+};
 
 dotenv.config();
 
@@ -163,31 +163,34 @@ app.get('/welcomejs', function (req, res) {
     res.sendFile(__dirname + "/welcome.js");
 });
 
-var globalimage=""; 
+var globalimage = "";
 app.post('/uploadImages', auth, upload.single('myImage'), (req, res) => {
     console.log("apdo user " + JSON.stringify(req.user))
     var image = fs.readFileSync(req.file.path);
-        var path = req.file.path;
-        var encode_image = image.toString('base64'); 
-        globalimage= encode_image; 
-        var encryptedImage = encrypt(encode_image);
-       // console.log("apdi encrypted image "+ encryptedImage);
-        var decryptedImage = decrypt(encryptedImage);
-        //console.log("apdi decrypted image "+ decryptedImage);
-        console.log("apdi checking"+  (encode_image === decryptedImage.toString()));
-        var imgProperty = {
-            contentType: req.file.mimetype,
-            image: new Buffer(encryptedImage, 'base64'),
-            name: req.file.originalname,
-            path: path.toString(),
-            user_id: req.user.id
-        };
-        db.collection('images').insertOne(imgProperty, (err, result) => {
-            //console.log(result)
-            if (err) return console.log(err.field)
-            console.log('saved to database')
-        })
-        res.send('Image stored to database successfully!');    
+    var path = req.file.path;
+    var encode_image = image.toString('base64');
+    globalimage = encode_image;
+    // res.send(globalimage);
+    var encryptedImage = encrypt(encode_image); 
+    // console.log("apdi encrypted image "+ encryptedImage);
+    var decryptedImage = decrypt(encryptedImage);
+    
+    //console.log("apdi decrypted image "+ decryptedImage);
+    console.log("apdi checking" + (encode_image === decryptedImage.toString()));
+
+    var imgProperty = {
+        contentType: req.file.mimetype,
+        image: new Buffer(encryptedImage, 'base64'),
+        name: req.file.originalname,
+        path: path.toString(),
+        user_id: req.user.id
+    };
+    db.collection('images').insertOne(imgProperty, (err, result) => {
+        //console.log(result)
+        if (err) return console.log(err.field)
+        console.log('saved to database')
+    })
+    res.send('Image stored to database successfully!');
 });
 
 app.post('/uploadMultipleImages', auth, upload.array('myImage'), (req, res, next) => {
@@ -214,6 +217,19 @@ app.post('/uploadMultipleImages', auth, upload.array('myImage'), (req, res, next
     res.send('All The Images Stored to Database Successfully!');
 })
 
+// function decodeBase64Image(dataString) {
+//     var matches = dataString.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
+//     var response = {};
+
+//     if (matches.length !== 3) {
+//         return new Error('Invalid input string');
+//     }
+
+//     response.type = matches[1];
+//     response.data = new Buffer(matches[2], 'base64');
+
+//     return response;
+// }
 
 app.get('/findImageByID', auth, (req, res) => {
     console.log(req.param("imageID"))
@@ -222,10 +238,17 @@ app.get('/findImageByID', auth, (req, res) => {
     db.collection('images').findOne({ '_id': ObjectId(filename), user_id: req.user.id }, (err, result) => {
         if (err) res.send("Image Not Available error" + err)
         if (result != null) {
+            console.log(result.image)
             var decryptedImage = decrypt(result.image.buffer);
-            console.log("apdi final checking"+  (globalimage === decryptedImage.toString()));
+            console.log("apdi final checking" + (globalimage === decryptedImage.toString() ));
+            //console.log( "Decrypted image " + decryptedImage.toString() );
+            //var imageBuffer  = decryptedImage;
             res.contentType('image/jpeg');
-            res.send(decryptedImage.buffer);
+            // console.log("apdi decrypted image" + JSON.stringify(decryptedImage));
+            // console.log("apdu buffer" + JSON.stringify(decryptedImage));
+            var imagefound = new Buffer(decryptedImage.toString('base64'), 'base64');
+           res.send(imagefound.buffer);
+          
         } else {
             res.send("Image Not Available")
         }
