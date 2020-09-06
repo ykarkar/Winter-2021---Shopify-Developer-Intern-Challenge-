@@ -15,9 +15,13 @@ const saltRounds = 10;
 const app = express();
 app.use(bodyParser.urlencoded({ extended: true }));
 const dotenv = require('dotenv');
-// var encryptor = require('file-encryptor');
 let key = 'ba94338c67710b7e7042cbbecc37ac08afe4d7cd73cf56dd7a4cf4b91a4c00bdc5de1c56f4b0a1de1fc4673fec1ceec5';
 key = crypto.createHash('sha256').update(String(key)).digest('base64').substr(0, 32);
+
+
+app.use(express.urlencoded({
+    extended: true
+}));
 
 const encrypt = (buffer) => {
     // Create an initialization vector
@@ -54,7 +58,7 @@ app.get('/check', function (req, res) {
         if (type === "SINGLE") {
             flag = false;
             type = "";
-            console.log("inside flag"+flag);
+            console.log("inside flag" + flag);
             res.send("SINGLE");
         }
         else if (type === "MULTIPLE") {
@@ -64,8 +68,8 @@ app.get('/check', function (req, res) {
         }
     }
     else {
-        flag =false;
-        type ="";
+        flag = false;
+        type = "";
         res.send("NO");
     }
 });
@@ -158,9 +162,11 @@ var storage = multer.diskStorage({
 
 var upload = multer({ storage: storage })
 
-app.use(express.urlencoded({
-    extended: true
-}));
+app.get('/welcomejs', function (req, res) {
+    res.sendFile(__dirname + "/welcome.js");
+});
+
+
 
 app.get('/', function (req, res) {
     res.sendFile(__dirname + "/welcomePage.html");
@@ -177,8 +183,6 @@ app.get('/publicPortal', function (req, res) {
 });
 
 app.post('/ImgPublicSingle', upload.single('myImage'), (req, res) => {
-   
-
     var image = fs.readFileSync(req.file.path);
     var path = req.file.path;
     var encode_image = image.toString('base64');
@@ -191,17 +195,17 @@ app.post('/ImgPublicSingle', upload.single('myImage'), (req, res) => {
         path: path.toString(),
     };
     db.collection('publicImages').insertOne(imgProperty, (err, result) => {
-        
+
         if (err) {
             flag = false;
-            type="";
+            type = "";
             res.send("Something is wrong please try again " + err)
         }
         else {
             flag = true;
-            type="SINGLE";
-          res.sendFile(__dirname + "/publicImages.html");
-            
+            type = "SINGLE";
+            res.redirect('/publicPortal');
+
         }
     })
 });
@@ -224,12 +228,18 @@ app.post('/ImgPublicMultiple', upload.array('myImage'), (req, res, next) => {
             path: path.toString(),
         };
         db.collection('publicImages').insertOne(imgProperty, (err, result) => {
-            console.log(result)
-            if (err) return console.log(err.field)
-            console.log('saved to database')
+            if (err) {
+                flag = false;
+                type = "";
+                res.send("Something is wrong please try again " + err)
+            }
         })
+
     })
-    res.sendFile(__dirname + "/publicImages.html");
+    flag = true;
+    type = "MULTIPLE";
+    res.redirect('/publicPortal');
+    //  res.sendFile(__dirname + "/publicImages.html");
 })
 
 
@@ -240,7 +250,6 @@ app.get('/findImageByIDPublic', (req, res) => {
     db.collection('publicImages').findOne({ '_id': ObjectId(filename) }, (err, result) => {
         if (err) res.send("Image Not Available error" + err)
         if (result != null) {
-
             var decryptedImg = decrypt(result.image.buffer);
             res.contentType('image/jpeg');
             res.send(decryptedImg);
@@ -281,15 +290,9 @@ app.get('/ImageRepo', auth, async (req, res) => {
 })
 
 
-app.get('/welcomejs', function (req, res) {
-    res.sendFile(__dirname + "/welcome.js");
-});
 
 
 
-
-
-var globalimage = "";
 app.post('/uploadImages', auth, upload.single('myImage'), (req, res) => {
     console.log("apdo user " + JSON.stringify(req.user))
     var image = fs.readFileSync(req.file.path);
