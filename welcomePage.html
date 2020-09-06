@@ -7,8 +7,8 @@
   <title>Document</title>
   <script src="https://code.jquery.com/jquery-3.2.1.min.js  "></script>
   <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-  <script type="text/javascript"  src="/welcomejs"></script>
-  
+  <script type="text/javascript" src="/welcomejs"></script>
+
   <style>
     * {
       margin: 0;
@@ -19,10 +19,11 @@
       background: #e9eaea;
       font-family: roboto;
       user-select: none;
+      font-size: 10px;
     }
 
     .container {
-      width: 450px;
+      width: 500px;
       margin: 30px auto;
     }
 
@@ -42,15 +43,24 @@
     .login-form {
       background: #fff;
       padding: 40px;
+      padding-bottom: 10px;      
       clear: both;
       width: 100%;
       box-sizing: border-box;
-      height: 400px;
+      
+    }
+    .ImgPublic {
+      background: #fff;
+      padding: 0px 40px 40px 40px;
+      clear: both;
+      width: 100%;
+      box-sizing: border-box;
+      
     }
 
     .input {
       width: 100%;
-      padding: 20px;
+      padding: 20px;      
       box-sizing: border-box;
       margin-bottom: 25px;
       border: 2px solid #e9eaea;
@@ -76,6 +86,25 @@
       letter-spacing: 1px;
       cursor: pointer;
       margin-bottom: 30px;
+    }
+
+    .btnImg {
+      font-size: 1em;
+      width: 80%;
+      background: #34b3a0;
+      height: 60px;
+      text-align: center;
+      line-height: 60px;
+      text-transform: uppercase;
+      color: #fff;
+      font-weight: bold;
+      letter-spacing: 1px;
+      cursor: pointer;
+      margin-bottom: 30px;
+    }
+
+    .imginput {
+      font-size: 1.2em;
     }
 
     span a {
@@ -106,34 +135,49 @@
       color: #3e3e40;
       font-family: roboto;
     }
+    a{
+      text-decoration: none;
+    }
+
+    h2 {
+      text-align: center;
+      font-size: 40px;
+    }
   </style>
 </head>
 
 <body>
+  <br /><br />
+  <h2>Welcome to Shopify Winter 2021 Intern Developer Challenge </h2><h2> Image Repository</h2>
+  <br /><br /><br />
   <div class="wrapper">
     <div class="container">
 
       <div class="signup">Sign Up</div>
-      <div class="login">Log In</div>
+      <div class="login">Log In</div>    
 
-
-      <div class="signup-form">        
-        <input type="text" placeholder="Username" id="rusername"  class="input"><br />
+      <div class="signup-form">
+        <input type="text" placeholder="Username" id="rusername" class="input"><br />
         <p class="error"></p>
-        <input type="password" placeholder="Password"  id="rpassword" class="input"><br />
+        <input type="password" placeholder="Password" id="rpassword" class="input"><br />
         <input type="password" placeholder="ReEnter Password" id="repassword" class="input"><br />
         <div class="btn" id="register">Create account</div>
       </div>
 
       <div class="login-form">
-        <input type="text" placeholder="Username"  id="username" class="input"><br />
-        <input type="password" placeholder="Password"  id="password" class="input"><br />
+        <p class="account"></p>
+        <input type="text" placeholder="Username" id="username" class="input"><br />
+        <input type="password" placeholder="Password" id="password" class="input"><br />
         <div id="login" class="btn">log in</div>
-      </div>
-
-    </div>
+      </div>  
+     
+      <div class="ImgPublic">
+        <a href="/publicPortal">
+      <div id="ImgPublicMultiple" class="btn">
+        Upload Images On Public Portal</div></a> 
+      </div>  
+    </div>   
   </div>
-
 </body>
 
 </html>

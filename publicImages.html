@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Winter 2021 - Shopify Developer Intern Challenge</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+    integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+  <style>
+    .gridContainer {
+      display: grid;
+      grid-template-columns: auto auto;
+      grid-gap: 10px;
+      padding: 10px;
+    }
+
+    .gridContainer>div {
+      text-align: center;
+      padding: 20px 0;
+      font-size: 30px;
+    }
+  </style>
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+
+  <script type="text/javascript">
+    function loadingFunction(){
+      $.get("http://localhost:3000/check", function (data, status) {
+      console.log(`${data} and status is ${status}`);
+      if (data === 'SINGLE') {
+        window.alert("Single");
+      }
+      else if (data === 'MULTIPLE'){
+        window.alert("Multiple");
+      }
+    })
+    }
+
+  </script>
+ 
+</head>
+
+<body onload="loadingFunction()">
+
+  <h3 style="text-align: center;">Welcome to Public Images Portal </h3>
+ 
+
+
+  <!--  Uploading Single Image and Multiple Images Section -->
+  <div class="row">
+    <div class="col-sm-6">
+      <div class="card bg-light mb-3">
+        <div class="card-body">
+          <h5 class="card-title">Upload Single Image</h5>
+          <p class="card-text">
+       <form action="/ImgPublicSingle" enctype="multipart/form-data" method="POST"> 
+            <input class="card-text" type="file" name="myImage" accept="image/*" required id="mySingleImage"/>
+            <input class="btn btn-primary" type="submit" value="Upload Single Image" />
+          </form>
+          </p>
+
+        </div>
+      </div>
+    </div>
+    <div class="col-sm-6">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">Upload Multiple Images</h5>
+          <p class="card-text">
+          <form class="second" action="/ImgPublicMultiple" enctype="multipart/form-data" method="POST">
+            <input type="file" name="myImage" accept="image/*" multiple required />
+            <input class="btn btn-primary" type="submit" value="Upload Multiple Images" />
+          </form>
+          </p>
+
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- End of upload section -->
+
+
+  <div class="row">
+    <div class="col-sm-6">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">Display Ids of All Images</h5>
+          <p class="card-text">
+            <form action="/showAllImgIdPublic" method="GET">
+            <button class="btn btn-primary" style="text-align:right;" onclick="showAllImgId()">Show Ids of all
+              Images</button>
+              </form>
+          <div id="ImageIds"></div>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-sm-6">
+      <div class="card">
+        <div class="card-body" id="Image">
+          <h5 class="card-title">Open Image By ID</h5>
+          <p class="card-text">
+            <form action="/findImageByIDPublic" method="GET">
+            <input type="text" name="imageID" id="imageID" required />
+            <input class="btn btn-primary" type="submit" value="Open Image By Id" />            
+              </form>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</body>
+
+</html>
