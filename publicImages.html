@@ -35,6 +35,24 @@
     })
     }
 
+    function showAllImgId() {
+      const url = 'http://localhost:3000/showAllImgIdPublic';
+      $.get(url, function (data, status) {
+        console.log(`${data} and status is ${status}`);
+        if (data) {
+          var str = '<ul>'
+
+          data.forEach(function (ids) {
+            str += '<li>' + ids + '</li>';
+          });
+
+          str += '</ul>';
+          document.getElementById("ImageIds").innerHTML = str;
+        }
+      })
+    }
+
+
   </script>
  
 </head>
@@ -85,10 +103,8 @@
         <div class="card-body">
           <h5 class="card-title">Display Ids of All Images</h5>
           <p class="card-text">
-            <form action="/showAllImgIdPublic" method="GET">
             <button class="btn btn-primary" style="text-align:right;" onclick="showAllImgId()">Show Ids of all
               Images</button>
-              </form>
           <div id="ImageIds"></div>
           </p>
         </div>

@@ -1,74 +1,22 @@
 $(document).ready(function () {
 
-  $(".UploadImgPublic").hide();
   $(".login-form").hide();
   $(".login").css("background", "none");
-  $(".UploadImg").css("background", "none");
   console.log("js workong");
 
   $(".login").click(function () {
     $(".signup-form").hide();
-    $(".UploadImgPublic").hide();
     $(".login-form").show();
     $(".signup").css("background", "none");
-    $(".UploadImg").css("background", "none");
     $(".login").css("background", "#fff");
   });
 
   $(".signup").click(function () {
     $(".signup-form").show();
     $(".login-form").hide();
-    $(".UploadImgPublic").hide();
-    $(".UploadImg").css("background", "none");
     $(".login").css("background", "none");
     $(".signup").css("background", "#fff");
   });
-
-  $(".UploadImg").click(function () {
-    $(".UploadImgPublic").show();
-    $(".signup-form").hide();
-    $(".login-form").hide();
-    $(".signup").css("background", "none");
-    $(".login").css("background", "none");
-    $(".UploadImg").css("background", "#fff");
-
-  })
-
-  const urlImg = 'http://localhost:3000/ImgPublicSingle';
-
-  
-
-
-
-  $('#ImgPublicSingle').click(function () {
-    const img = document.getElementById("mySingleImage").files[0];
-
-    console.log(img);
-   const data = { myImage: img };
-    // $.post(urlImg,data,function(data,status){
-    //   console.log(`${data} and status is ${status}`);       
-    //   alert(data);      
-    // })
-    var req = jQuery.ajax({
-      url: 'http://localhost:3000/ImgPublicSingle',
-      method: 'POST',
-      data: data, // sends fields with filename mimetype etc
-      // data: aFiles[0], // optional just sends the binary
-      processData: false, // don't let jquery process the data
-      contentType: false // let xhr set the content type
-    });
-    req.then(function (response) {
-      console.log(response)
-    }, function (xhr) {
-      console.error('failed to fetch xhr', xhr)
-    })
-
-  })
-
-  $('#ImgPublicMultiple').click(function () {
-
-  })
-
 
   const url = 'http://localhost:3000/register';
   $("#register").click(function () {
@@ -85,7 +33,12 @@ $(document).ready(function () {
         if (data === 'Account created') {
           $(".signup-form").hide();
           $(".login-form").show();
+          $(".signup").css("background", "none");
+          $(".login").css("background", "#fff");
           $(".account").text('Account created please login!')
+        }
+        else if( data === 'User Already Exists'){
+            $(".error").text('Username already exists. Please try other username')
         }
       })
     }

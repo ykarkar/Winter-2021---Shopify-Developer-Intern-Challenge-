@@ -17,6 +17,11 @@ app.use(bodyParser.urlencoded({ extended: true }));
 const dotenv = require('dotenv');
 let key = 'ba94338c67710b7e7042cbbecc37ac08afe4d7cd73cf56dd7a4cf4b91a4c00bdc5de1c56f4b0a1de1fc4673fec1ceec5';
 key = crypto.createHash('sha256').update(String(key)).digest('base64').substr(0, 32);
+dotenv.config();
+
+var token1 = "";
+var flag = false;
+var type = "";
 
 
 app.use(express.urlencoded({
@@ -46,12 +51,6 @@ const decrypt = (encrypted) => {
     return result;
 };
 
-dotenv.config();
-
-var token1 = "";
-var flag = false;
-var type = "";
-
 app.get('/check', function (req, res) {
     console.log(flag);
     if (flag) {
@@ -73,8 +72,6 @@ app.get('/check', function (req, res) {
         res.send("NO");
     }
 });
-
-
 
 function auth(req, res, next) {
     console.log("apdi token " + token1);
@@ -98,31 +95,36 @@ MongoClient.connect(myurl, (err, client) => {
     })
 })
 
-
 app.post('/register', function (req, res, next) {
     const username = req.param("username");
     const password = req.param("password");
-    bcrypt.hash(password, saltRounds, (err, hash) => {
-        if (err) console.log(err)
-        var userDetails = {
-            user_name: username,
-            pwdhash: hash
+    db.collection('Users').findOne({ 'user_name': username }, (err, result) => {
+        if (result!=null  &&result.user_name == username) {
+            res.send('User Already Exists')
         }
-        db.collection('Users').insertOne(userDetails, (err, resu) => {
-            if (err) return console.log(err.field)
-            console.log(resu.insertedId);
-            res.send('Account created')
-        })
-    });
+        else{
+            bcrypt.hash(password, saltRounds, (err, hash) => {
+                if (err) console.log(err)
+                var userDetails = {
+                    user_name: username,
+                    pwdhash: hash
+                }
+                db.collection('Users').insertOne(userDetails, (err, resu) => {
+                    if (err) return console.log(err.field)
+                    console.log(resu.insertedId);
+                    res.send('Account created')
+                })
+            });
+        }
+    })
+
 })
 
 app.post('/logIn', function (req, res) {
     const username = req.param("username");
     const password = req.param("password");
-
     console.log("request =>> " + username)
     db.collection('Users').findOne({ 'user_name': username }, (err, result) => {
-        console.log("mongo data ====> " + JSON.stringify(result))
         if (err) console.log("Username does not found" + err)
         if (result != null) {
             const pwdhash = result.pwdhash
@@ -134,7 +136,6 @@ app.post('/logIn', function (req, res) {
                     const payload = {
                         user: { id: user_id }
                     };
-
                     jwt.sign(payload, process.env.TOKEN_SECRET, { expiresIn: 1000 },
                         (err, token) => {
                             if (err) throw err;
@@ -148,7 +149,6 @@ app.post('/logIn', function (req, res) {
             res.send("User not found please Signup")
         }
     })
-
 })
 
 var storage = multer.diskStorage({
@@ -165,8 +165,6 @@ var upload = multer({ storage: storage })
 app.get('/welcomejs', function (req, res) {
     res.sendFile(__dirname + "/welcome.js");
 });
-
-
 
 app.get('/', function (req, res) {
     res.sendFile(__dirname + "/welcomePage.html");
@@ -195,7 +193,6 @@ app.post('/ImgPublicSingle', upload.single('myImage'), (req, res) => {
         path: path.toString(),
     };
     db.collection('publicImages').insertOne(imgProperty, (err, result) => {
-
         if (err) {
             flag = false;
             type = "";
@@ -205,7 +202,6 @@ app.post('/ImgPublicSingle', upload.single('myImage'), (req, res) => {
             flag = true;
             type = "SINGLE";
             res.redirect('/publicPortal');
-
         }
     })
 });
@@ -220,7 +216,6 @@ app.post('/ImgPublicMultiple', upload.array('myImage'), (req, res, next) => {
         var encode_image = imagespath.toString('base64');
         var buffer_image = new Buffer(encode_image, 'base64');
         var encrypted_image = encrypt(buffer_image);
-
         var imgProperty = {
             contentType: multiimg.mimetype,
             image: encrypted_image,
@@ -234,12 +229,10 @@ app.post('/ImgPublicMultiple', upload.array('myImage'), (req, res, next) => {
                 res.send("Something is wrong please try again " + err)
             }
         })
-
     })
     flag = true;
     type = "MULTIPLE";
     res.redirect('/publicPortal');
-    //  res.sendFile(__dirname + "/publicImages.html");
 })
 
 
@@ -269,10 +262,7 @@ app.get('/showAllImgIdPublic', (req, res) => {
         if (err) return console.log(err)
         res.send(imgArray);
     })
-    //res.sendFile(__dirname + '/home.html',{imageIds:imgArray});
 });
-
-
 
 
 app.get('/ImageRepo', auth, async (req, res) => {
@@ -288,10 +278,6 @@ app.get('/ImageRepo', auth, async (req, res) => {
     }
 
 })
-
-
-
-
 
 app.post('/uploadImages', auth, upload.single('myImage'), (req, res) => {
     console.log("apdo user " + JSON.stringify(req.user))
@@ -310,8 +296,17 @@ app.post('/uploadImages', auth, upload.single('myImage'), (req, res) => {
     db.collection('images').insertOne(imgProperty, (err, result) => {
         if (err) return console.log(err.field)
         console.log('saved to database')
+        if (err) {
+            flag = false;
+            type = "";
+            res.send("Something is wrong please try again " + err)
+        }
+        else {
+            flag = true;
+            type = "SINGLE";
+            res.redirect('/ImageRepo');
+        }
     })
-    res.send('Image stored to database successfully!');
 });
 
 app.post('/uploadMultipleImages', auth, upload.array('myImage'), (req, res, next) => {
@@ -335,11 +330,20 @@ app.post('/uploadMultipleImages', auth, upload.array('myImage'), (req, res, next
             console.log(result)
             if (err) return console.log(err.field)
             console.log('saved to database')
+            if (err) {
+                flag = false;
+                type = "";
+                res.send("Something is wrong please try again " + err)
+            }
         })
     })
-    res.send('All The Images Stored to Database Successfully!');
-})
 
+
+    flag = true;
+    type = "SINGLE";
+    res.redirect('/ImageRepo');
+
+})
 
 app.get('/findImageByID', auth, (req, res) => {
     console.log(req.param("imageID"))
@@ -359,18 +363,15 @@ app.get('/findImageByID', auth, (req, res) => {
     })
 });
 
-
-// app.get('/showAllImages', auth, (req, res) => {
-//     var filename = req.param("imageID");
-//     console.log(filename);
-//     db.collection('images').find({ user_id: req.user.id }).toArray((err, result) => {
-//         if (err) return console.log(err)
-//         const imgArray = result.map(element => element.image);
-//         res.contentType('image/jpeg');
-//         res.send(JSON.stringify(imgArray));
-//     })
-// });
-
+app.get('/showAllImgId', auth, (req, res) => {
+    var imgArray = {};
+    db.collection('images').find({ user_id: req.user.id }).toArray((err, result) => {
+        imgArray = result.map(element => element._id);
+        console.log(imgArray);
+        if (err) return console.log(err)
+        res.send(imgArray);
+    })
+});
 
 app.get('/deleteImageByID', auth, (req, res) => {
     var filename = req.param("deleteImageID");
@@ -408,18 +409,5 @@ app.get('/deleteAllImages', auth, (req, res) => {
         res.send('All The Images Deleted Successfully!')
     })
 });
-
-app.get('/showAllImgId', auth, (req, res) => {
-    var imgArray = {};
-    db.collection('images').find({ user_id: req.user.id }).toArray((err, result) => {
-        imgArray = result.map(element => element._id);
-        console.log(imgArray);
-        if (err) return console.log(err)
-        res.send(imgArray);
-    })
-    //res.sendFile(__dirname + '/home.html',{imageIds:imgArray});
-});
-
-
 
 app.listen(3000, () => console.log('Server started on port 3000'));
