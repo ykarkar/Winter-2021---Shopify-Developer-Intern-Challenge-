@@ -16,7 +16,7 @@ const app = express();
 app.use(bodyParser.urlencoded({ extended: true }));
 const dotenv = require('dotenv');
 // var encryptor = require('file-encryptor');
-let key = 'thiskjdbkjcbwel';
+let key = 'ba94338c67710b7e7042cbbecc37ac08afe4d7cd73cf56dd7a4cf4b91a4c00bdc5de1c56f4b0a1de1fc4673fec1ceec5';
 key = crypto.createHash('sha256').update(String(key)).digest('base64').substr(0, 32);
 
 const encrypt = (buffer) => {
@@ -28,6 +28,7 @@ const encrypt = (buffer) => {
     const result = Buffer.concat([iv, cipher.update(buffer), cipher.final()]);
     return result;
 };
+
 
 const decrypt = (encrypted) => {
     // Get the iv: the first 16 bytes
@@ -44,6 +45,32 @@ const decrypt = (encrypted) => {
 dotenv.config();
 
 var token1 = "";
+var flag = false;
+var type = "";
+
+app.get('/check', function (req, res) {
+    console.log(flag);
+    if (flag) {
+        if (type === "SINGLE") {
+            flag = false;
+            type = "";
+            console.log("inside flag"+flag);
+            res.send("SINGLE");
+        }
+        else if (type === "MULTIPLE") {
+            flag = false;
+            type = "";
+            res.send("MULTIPLE");
+        }
+    }
+    else {
+        flag =false;
+        type ="";
+        res.send("NO");
+    }
+});
+
+
 
 function auth(req, res, next) {
     console.log("apdi token " + token1);
@@ -144,6 +171,101 @@ app.get('/logout', function (req, res) {
     res.send("loggedOut");
 });
 
+app.get('/publicPortal', function (req, res) {
+    token1 = "";
+    res.sendFile(__dirname + "/publicImages.html");
+});
+
+app.post('/ImgPublicSingle', upload.single('myImage'), (req, res) => {
+   
+
+    var image = fs.readFileSync(req.file.path);
+    var path = req.file.path;
+    var encode_image = image.toString('base64');
+    var buffer_image = new Buffer(encode_image, 'base64');
+    var encrypted_image = encrypt(buffer_image);
+    var imgProperty = {
+        contentType: req.file.mimetype,
+        image: encrypted_image,
+        name: req.file.originalname,
+        path: path.toString(),
+    };
+    db.collection('publicImages').insertOne(imgProperty, (err, result) => {
+        
+        if (err) {
+            flag = false;
+            type="";
+            res.send("Something is wrong please try again " + err)
+        }
+        else {
+            flag = true;
+            type="SINGLE";
+          res.sendFile(__dirname + "/publicImages.html");
+            
+        }
+    })
+});
+
+app.post('/ImgPublicMultiple', upload.array('myImage'), (req, res, next) => {
+    const multipleimages = req.files;
+    console.log("multiple images:=> " + multipleimages);
+
+    multipleimages.forEach(multiimg => {
+        var path = multiimg.path;
+        var imagespath = fs.readFileSync(multiimg.path);
+        var encode_image = imagespath.toString('base64');
+        var buffer_image = new Buffer(encode_image, 'base64');
+        var encrypted_image = encrypt(buffer_image);
+
+        var imgProperty = {
+            contentType: multiimg.mimetype,
+            image: encrypted_image,
+            name: multiimg.originalname,
+            path: path.toString(),
+        };
+        db.collection('publicImages').insertOne(imgProperty, (err, result) => {
+            console.log(result)
+            if (err) return console.log(err.field)
+            console.log('saved to database')
+        })
+    })
+    res.sendFile(__dirname + "/publicImages.html");
+})
+
+
+app.get('/findImageByIDPublic', (req, res) => {
+    console.log(req.param("imageID"))
+    var filename = req.param("imageID");
+    console.log(filename);
+    db.collection('publicImages').findOne({ '_id': ObjectId(filename) }, (err, result) => {
+        if (err) res.send("Image Not Available error" + err)
+        if (result != null) {
+
+            var decryptedImg = decrypt(result.image.buffer);
+            res.contentType('image/jpeg');
+            res.send(decryptedImg);
+            // res.send(result.image.buffer);
+        } else {
+            res.send("Image Not Available")
+        }
+
+    })
+});
+
+app.get('/showAllImgIdPublic', (req, res) => {
+    var imgArray = {};
+    db.collection('publicImages').find().toArray((err, result) => {
+        imgArray = result.map(element => element._id);
+        console.log(imgArray);
+        if (err) return console.log(err)
+        res.send(imgArray);
+    })
+    //res.sendFile(__dirname + '/home.html',{imageIds:imgArray});
+});
+
+
+
+
 app.get('/ImageRepo', auth, async (req, res) => {
     console.log('Auth cleared');
     try {
@@ -163,30 +285,26 @@ app.get('/welcomejs', function (req, res) {
     res.sendFile(__dirname + "/welcome.js");
 });
 
+
+
+
+
 var globalimage = "";
 app.post('/uploadImages', auth, upload.single('myImage'), (req, res) => {
     console.log("apdo user " + JSON.stringify(req.user))
     var image = fs.readFileSync(req.file.path);
     var path = req.file.path;
     var encode_image = image.toString('base64');
-    globalimage = encode_image;
-    // res.send(globalimage);
-    var encryptedImage = encrypt(encode_image); 
-    // console.log("apdi encrypted image "+ encryptedImage);
-    var decryptedImage = decrypt(encryptedImage);
-    
-    //console.log("apdi decrypted image "+ decryptedImage);
-    console.log("apdi checking" + (encode_image === decryptedImage.toString()));
-
+    var buffer_image = new Buffer(encode_image, 'base64');
+    var encrypted_image = encrypt(buffer_image);
     var imgProperty = {
         contentType: req.file.mimetype,
-        image: new Buffer(encryptedImage, 'base64'),
+        image: encrypted_image,
         name: req.file.originalname,
         path: path.toString(),
         user_id: req.user.id
     };
     db.collection('images').insertOne(imgProperty, (err, result) => {
-        //console.log(result)
         if (err) return console.log(err.field)
         console.log('saved to database')
     })
@@ -201,9 +319,11 @@ app.post('/uploadMultipleImages', auth, upload.array('myImage'), (req, res, next
         var path = multiimg.path;
         var imagespath = fs.readFileSync(multiimg.path);
         var encode_image = imagespath.toString('base64');
+        var buffer_image = new Buffer(encode_image, 'base64');
+        var encrypted_image = encrypt(buffer_image);
         var imgProperty = {
             contentType: multiimg.mimetype,
-            image: new Buffer(encode_image, 'base64'),
+            image: encrypted_image,
             name: multiimg.originalname,
             path: path.toString(),
             user_id: req.user.id
@@ -217,19 +337,6 @@ app.post('/uploadMultipleImages', auth, upload.array('myImage'), (req, res, next
     res.send('All The Images Stored to Database Successfully!');
 })
 
-// function decodeBase64Image(dataString) {
-//     var matches = dataString.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
-//     var response = {};
-
-//     if (matches.length !== 3) {
-//         return new Error('Invalid input string');
-//     }
-
-//     response.type = matches[1];
-//     response.data = new Buffer(matches[2], 'base64');
-
-//     return response;
-// }
 
 app.get('/findImageByID', auth, (req, res) => {
     console.log(req.param("imageID"))
@@ -238,17 +345,10 @@ app.get('/findImageByID', auth, (req, res) => {
     db.collection('images').findOne({ '_id': ObjectId(filename), user_id: req.user.id }, (err, result) => {
         if (err) res.send("Image Not Available error" + err)
         if (result != null) {
-            console.log(result.image)
-            var decryptedImage = decrypt(result.image.buffer);
-            console.log("apdi final checking" + (globalimage === decryptedImage.toString() ));
-            //console.log( "Decrypted image " + decryptedImage.toString() );
-            //var imageBuffer  = decryptedImage;
+            var decryptedImg = decrypt(result.image.buffer);
             res.contentType('image/jpeg');
-            // console.log("apdi decrypted image" + JSON.stringify(decryptedImage));
-            // console.log("apdu buffer" + JSON.stringify(decryptedImage));
-            var imagefound = new Buffer(decryptedImage.toString('base64'), 'base64');
-           res.send(imagefound.buffer);
-          
+            res.send(decryptedImg);
+
         } else {
             res.send("Image Not Available")
         }
@@ -257,16 +357,16 @@ app.get('/findImageByID', auth, (req, res) => {
 });
 
 
-app.get('/showAllImages', auth, (req, res) => {
-    var filename = req.param("imageID");
-    console.log(filename);
-    db.collection('images').find({ user_id: req.user.id }).toArray((err, result) => {
-        if (err) return console.log(err)
-        const imgArray = result.map(element => element.image);
-        res.contentType('image/jpeg');
-        res.send(JSON.stringify(imgArray));
-    })
-});
+// app.get('/showAllImages', auth, (req, res) => {
+//     var filename = req.param("imageID");
+//     console.log(filename);
+//     db.collection('images').find({ user_id: req.user.id }).toArray((err, result) => {
+//         if (err) return console.log(err)
+//         const imgArray = result.map(element => element.image);
+//         res.contentType('image/jpeg');
+//         res.send(JSON.stringify(imgArray));
+//     })
+// });
 
 
 app.get('/deleteImageByID', auth, (req, res) => {
@@ -298,10 +398,11 @@ app.get('/deleteAllImages', auth, (req, res) => {
             fs.unlink(imgpath, (err, resul) => {
                 if (err) console.log(err)
                 db.collection('images').deleteOne({ 'path': imgpath, user_id: req.user.id }, (error, resul) => {
-                    error ? res.send(error) : res.send('All The Images Deleted Successfully!')
+                    error ? res.send(error) : console.log(resul)
                 })
             })
         })
+        res.send('All The Images Deleted Successfully!')
     })
 });
 
