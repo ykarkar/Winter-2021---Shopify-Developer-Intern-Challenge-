@@ -104,10 +104,10 @@ app.post('/register', function (req, res, next) {
     const username = req.param("username");
     const password = req.param("password");
     db.collection('Users').findOne({ 'user_name': username }, (err, result) => {
-        if (result!=null  &&result.user_name == username) {
+        if (result != null && result.user_name == username) {
             res.send('User Already Exists')
         }
-        else{
+        else {
             bcrypt.hash(password, saltRounds, (err, hash) => {
                 if (err) console.log(err)
                 var userDetails = {
@@ -370,11 +370,11 @@ app.get('/findImageByID', auth, (req, res) => {
 app.get('/showAllImgId', auth, (req, res) => {
     var imgArray = {};
     db.collection('images').find({ user_id: req.user.id }).toArray((err, result) => {
-        if(result != null){
-        imgArray = result.map(element => element._id);
-        res.send(imgArray);
+        if (result != '') {
+            imgArray = result.map(element => element._id);
+            res.send(imgArray);
         }
-        else{
+        else {
             res.send('Images_Not_Available');
         }
     })
@@ -383,18 +383,18 @@ app.get('/showAllImgId', auth, (req, res) => {
 app.get('/deleteImageByID', auth, (req, res) => {
     var filename = req.param("deleteImageID");
     var imagePath;
-    db.collection('images').findOne({ '_id': ObjectId(filename), 'user_id': req.user.id }, (err, result) => {        
-        if(err) res.send('Image Not Available or Does Not Belong To User')
+    db.collection('images').findOne({ '_id': ObjectId(filename), 'user_id': req.user.id }, (err, result) => {
+        if (err) res.send('Image Not Available or Does Not Belong To User')
         if (result != null) {
             imagePath = result.path.toString()
             fs.unlink(imagePath, (err, result) => {
                 err ? res.send(err) : console.log(result);
                 db.collection('images').deleteOne({ '_id': ObjectId(filename), 'user_id': req.user.id }, (err, result) => {
                     if (err) res.send('Image Not Available or Does Not Belong To User')
-                    if(result != null )  res.send('Image_Deleted');
+                    if (result != null) res.send('Image_Deleted');
                 })
             })
-        } else{
+        } else {
             res.send('Image Not Available or Does Not Belong To User')
         }
     })
@@ -404,22 +404,22 @@ app.get('/deleteAllImages', auth, (req, res) => {
     var imgArray = {};
     db.collection('images').find({ user_id: req.user.id }).toArray((err, result) => {
         if (err) res.send('Images_Not_Available')
-        if(result != null){
-        imgArray = result.map(element => element.path);
-        imgArray.forEach(imgpath => {
-            fs.unlink(imgpath, (err, resul) => {
-                if (err) console.log(err)
-                db.collection('images').deleteOne({ 'path': imgpath, user_id: req.user.id }, (error, resul) => {
-                    error ? res.send("Images_Not_Available") : console.log(resul)
+
+        if (result != '') {
+            imgArray = result.map(element => element.path);
+
+            console.log(imgArray);
+            imgArray.forEach(imgpath => {
+                fs.unlink(imgpath, (err, resul) => {
+                    if (err) console.log(err)
+                    db.collection('images').deleteOne({ 'path': imgpath, user_id: req.user.id }, (error, resul) => {
+                        error ? res.send("Images_Not_Available") : console.log(resul)
+                    })
                 })
             })
-        })
-        res.send('Images_Deleted')
-    }
-    else{
-        res.send('Images_Not_Available')
-    }
-     
+            res.send('Images_Deleted')
+        }
+        else { res.send('Images_Not_Available') }
     })
 });
 

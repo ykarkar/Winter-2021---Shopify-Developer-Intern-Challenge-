@@ -20,7 +20,7 @@
       font-family: roboto;
       user-select: none;
       font-size: 10px;
-      overflow: hidden;
+      /* overflow: hidden; */
     }
 
     .bg {
@@ -51,7 +51,7 @@
     .login-form {
       background: #fff;
       padding: 40px;
-      padding-bottom: 10px;
+      padding-bottom: 0px;
       clear: both;
       width: 100%;
       box-sizing: border-box;
@@ -152,7 +152,7 @@
 
     h2 {
       text-align: center;
-      font-size: 40px;
+      font-size: 35px;
     }
 
     #ImgPublicMultiple {
@@ -172,7 +172,7 @@
   <br /><br />
   <h2>Welcome to Shopify Winter 2021 Intern Developer Challenge </h2>
   <h2> Image Repository</h2>
-  <br /><br />
+  <br />
   <div class="wrapper">
     <div class="container">
 
@@ -184,14 +184,14 @@
         <p class="error"></p>
         <input type="password" placeholder="Password" id="rpassword" class="input"><br />
         <input type="password" placeholder="ReEnter Password" id="repassword" class="input"><br />
-        <div class="btn" id="register">Create account</div>
+        <button class="btn" id="register">Create account</button>
       </div>
 
       <div class="login-form">
         <p class="account"></p>
         <input type="text" placeholder="Username" id="username" class="input"><br />
         <input type="password" placeholder="Password" id="password" class="input"><br />
-        <div id="login" class="btn">log in</div>
+        <button id="login" class="btn">log in</button>
       </div>
 
       <div class="ImgPublic">
