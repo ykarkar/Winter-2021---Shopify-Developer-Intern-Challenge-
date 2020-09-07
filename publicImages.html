@@ -7,12 +7,49 @@
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
     integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
   <style>
-   .bg{
-    background-image: url('backportal.jpg') ;
-    height: 100%;
+  .bg {
+      background-image: url('cool-background.png');
+      height: 100%;
       background-repeat: no-repeat;
       background-size: cover;
-   }
+    }
+    .Section1 {
+      background-color:#e9eaea;
+      float: left;
+      padding: 30px;      
+      width: 47%;
+      height: 80%;
+      border: solid thin;
+      /* box-sizing: border-box; */
+    }
+
+    .Section2 {
+      background-color:#e9eaea;
+      border: solid thin;
+      padding: 30px;      
+      width: 47%;
+      height: 80%;
+      float: right;
+    }
+
+    .btn {
+      /* width: 100%; */
+      background: #34b3a0;
+      /* height: 60px; */
+      text-align: center;
+      /* line-height: 60px; */
+      text-transform: uppercase;
+      color: #fff;
+      font-weight: bold;
+      /* letter-spacing: 1px; */
+      cursor: pointer;
+      /* margin-bottom: 30px; */
+      font-size: 1.1em;
+    }
+
+    .individualSection{
+      padding: 10px;
+    }
   </style>
   <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 
@@ -63,67 +100,46 @@
   <button class="btn btn-success"  onclick="privatePortal()">Go to Private Portal</button>
 </div>
   <!--  Uploading Single Image and Multiple Images Section -->
-  <div class="row">
-    <div class="col-sm-6">
-      <div class="card bg-light mb-3">
-        <div class="card-body">
-          <h5 class="card-title">Upload Single Image</h5>
-          <p class="card-text">
-       <form action="/ImgPublicSingle" enctype="multipart/form-data" method="POST"> 
-            <input class="card-text" type="file" name="myImage" accept="image/*" required id="mySingleImage"/>
-            <input class="btn btn-primary" type="submit" value="Upload Single Image" />
-          </form>
-          </p>
+  <div class='Section1'>
 
-        </div>
-      </div>
+    <div class='individualSection'>
+      <h5>Upload Single Image</h5>
+      <form action="/ImgPublicSingle" class='row' enctype="multipart/form-data" method="POST">
+        <input class="col" type="file" name="myImage" accept="image/*" required />
+        <input class="btn col" type="submit" value="Upload Single Image" />
+      </form>
     </div>
-    <div class="col-sm-6">
-      <div class="card bg-light mb-3" >
-        <div class="card-body">
-          <h5 class="card-title">Upload Multiple Images</h5>
-          <p class="card-text">
-          <form class="second" action="/ImgPublicMultiple" enctype="multipart/form-data" method="POST">
-            <input type="file" name="myImage" accept="image/*" multiple required />
-            <input class="btn btn-primary" type="submit" value="Upload Multiple Images" />
-          </form>
-          </p>
 
-        </div>
-      </div>
+    <div class='individualSection'>
+      <h5>Upload Multiple Images</h5>
+      <form class="second row" action="/ImgPublicMultiple" enctype="multipart/form-data" method="POST">
+        <input type="file" class="col" name="myImage" accept="image/*" multiple required />
+        <input class="btn col" type="submit" value="Upload Multiple Images" />
+      </form>
     </div>
   </div>
   <!-- End of upload section -->
 
+  <!-- Another Section -->
+  <div class='Section2'>
 
-  <div class="row">
-    <div class="col-sm-6">
-      <div class="card">
-        <div class="card-body">
-          <h5 class="card-title">Display Ids of All Images</h5>
-          <p class="card-text">
-            <button class="btn btn-primary" style="text-align:right;" onclick="showAllImgId()">Show Ids of all
-              Images</button>
-          <div id="ImageIds"></div>
-          </p>
-        </div>
+    <div class='individualSection'>
+      <h5>Display Ids of All Images</h5>
+      <div class='row'>
+      <button class="btn col"  onclick="showAllImgId()">Show Ids of all
+        Images</button>        
       </div>
+      <div id="ImageIds"></div>        
     </div>
 
-    <div class="col-sm-6">
-      <div class="card">
-        <div class="card-body" id="Image">
-          <h5 class="card-title">Open Image By ID</h5>
-          <p class="card-text">
-            <form action="/findImageByIDPublic" method="GET">
-            <input type="text" name="imageID" id="imageID" required />
-            <input class="btn btn-primary" type="submit" value="Open Image By Id" />            
-              </form>
-          </p>
-        </div>
-      </div>
+
+    <div class='individualSection'>
+      <h5>Open Image By ID</h5>
+      <form action="/findImageByIDPublic" class='row' method="GET">
+        <input type="text" name="imageID"  class="col" id="imageID" required />          
+        <input class="btn  col" type="submit" value="Open Image By Id" />
+      </form>
     </div>
-  </div>
 
 </body>
 
