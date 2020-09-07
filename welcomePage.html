@@ -20,6 +20,14 @@
       font-family: roboto;
       user-select: none;
       font-size: 10px;
+      /* overflow: hidden; */
+    }
+
+    .bg {
+      background-image: url('cool-background.png');
+      height: 100%;
+      background-repeat: no-repeat;
+      background-size: cover;
     }
 
     .container {
@@ -43,24 +51,25 @@
     .login-form {
       background: #fff;
       padding: 40px;
-      padding-bottom: 10px;      
+      padding-bottom: 0px;
       clear: both;
       width: 100%;
       box-sizing: border-box;
-      
+
     }
+
     .ImgPublic {
       background: #fff;
       padding: 0px 40px 40px 40px;
       clear: both;
       width: 100%;
       box-sizing: border-box;
-      
+
     }
 
     .input {
       width: 100%;
-      padding: 20px;      
+      padding: 20px;
       box-sizing: border-box;
       margin-bottom: 25px;
       border: 2px solid #e9eaea;
@@ -86,6 +95,7 @@
       letter-spacing: 1px;
       cursor: pointer;
       margin-bottom: 30px;
+      font-size: 1.1em;
     }
 
     .btnImg {
@@ -135,48 +145,62 @@
       color: #3e3e40;
       font-family: roboto;
     }
-    a{
+
+    a {
       text-decoration: none;
     }
 
     h2 {
       text-align: center;
-      font-size: 40px;
+      font-size: 35px;
+    }
+
+    #ImgPublicMultiple {
+      background-color: #3498B3;
+    }
+
+    .error,
+    .account {
+      text-align: center;
+      font-size: medium;
+      color: goldenrod;
     }
   </style>
 </head>
 
-<body>
+<body class='bg'>
   <br /><br />
-  <h2>Welcome to Shopify Winter 2021 Intern Developer Challenge </h2><h2> Image Repository</h2>
-  <br /><br /><br />
+  <h2>Welcome to Shopify Winter 2021 Intern Developer Challenge </h2>
+  <h2> Image Repository</h2>
+  <br />
   <div class="wrapper">
     <div class="container">
 
       <div class="signup">Sign Up</div>
-      <div class="login">Log In</div>    
+      <div class="login">Log In</div>
 
       <div class="signup-form">
         <input type="text" placeholder="Username" id="rusername" class="input"><br />
         <p class="error"></p>
         <input type="password" placeholder="Password" id="rpassword" class="input"><br />
         <input type="password" placeholder="ReEnter Password" id="repassword" class="input"><br />
-        <div class="btn" id="register">Create account</div>
+        <button class="btn" id="register">Create account</button>
       </div>
 
       <div class="login-form">
         <p class="account"></p>
         <input type="text" placeholder="Username" id="username" class="input"><br />
         <input type="password" placeholder="Password" id="password" class="input"><br />
-        <div id="login" class="btn">log in</div>
-      </div>  
-     
+        <button id="login" class="btn">log in</button>
+      </div>
+
       <div class="ImgPublic">
         <a href="/publicPortal">
-      <div id="ImgPublicMultiple" class="btn">
-        Upload Images On Public Portal</div></a> 
-      </div>  
-    </div>   
+          <div id="ImgPublicMultiple" class="btn">
+            Upload Images On Public Portal</div>
+        </a>
+      </div>
+    </div>
   </div>
 </body>
 

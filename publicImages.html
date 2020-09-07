@@ -7,18 +7,12 @@
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
     integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
   <style>
-    .gridContainer {
-      display: grid;
-      grid-template-columns: auto auto;
-      grid-gap: 10px;
-      padding: 10px;
-    }
-
-    .gridContainer>div {
-      text-align: center;
-      padding: 20px 0;
-      font-size: 30px;
-    }
+   .bg{
+    background-image: url('backportal.jpg') ;
+    height: 100%;
+      background-repeat: no-repeat;
+      background-size: cover;
+   }
   </style>
   <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 
@@ -27,24 +21,47 @@
       $.get("http://localhost:3000/check", function (data, status) {
       console.log(`${data} and status is ${status}`);
       if (data === 'SINGLE') {
-        window.alert("Single");
+        window.alert("Image uploaded");
       }
       else if (data === 'MULTIPLE'){
-        window.alert("Multiple");
+        window.alert("All the Images Uploaded");
       }
     })
     }
+
+    function showAllImgId() {
+      const url = 'http://localhost:3000/showAllImgIdPublic';
+      $.get(url, function (data, status) {
+        console.log(`${data} and status is ${status}`);
+        if (data) {
+          var str = '<ul>'
+
+          data.forEach(function (ids) {
+            str += '<li>' + ids + '</li>';
+          });
+
+          str += '</ul>';
+          document.getElementById("ImageIds").innerHTML = str;
+        }
+      })
+    }
+
+    function privatePortal() {
+      window.location.replace("/");
+    }
+
 
   </script>
  
 </head>
 
-<body onload="loadingFunction()">
+<body onload="loadingFunction()" class='bg'>
 
   <h3 style="text-align: center;">Welcome to Public Images Portal </h3>
  
-
-
+<div style="text-align: center;">
+  <button class="btn btn-success"  onclick="privatePortal()">Go to Private Portal</button>
+</div>
   <!--  Uploading Single Image and Multiple Images Section -->
   <div class="row">
     <div class="col-sm-6">
@@ -62,7 +79,7 @@
       </div>
     </div>
     <div class="col-sm-6">
-      <div class="card">
+      <div class="card bg-light mb-3" >
         <div class="card-body">
           <h5 class="card-title">Upload Multiple Images</h5>
           <p class="card-text">
@@ -85,10 +102,8 @@
         <div class="card-body">
           <h5 class="card-title">Display Ids of All Images</h5>
           <p class="card-text">
-            <form action="/showAllImgIdPublic" method="GET">
             <button class="btn btn-primary" style="text-align:right;" onclick="showAllImgId()">Show Ids of all
               Images</button>
-              </form>
           <div id="ImageIds"></div>
           </p>
         </div>
