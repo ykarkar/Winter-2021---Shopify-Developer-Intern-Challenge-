@@ -6,7 +6,6 @@ const bodyParser = require('body-parser')
 const fs = require('fs');
 const multer = require('multer');
 const MongoClient = require('mongodb').MongoClient
-const mongoose = require("mongoose");
 const ObjectId = require('mongodb').ObjectID;
 const myurl = 'mongodb://localhost:27017';
 const bcrypt = require('bcrypt');
