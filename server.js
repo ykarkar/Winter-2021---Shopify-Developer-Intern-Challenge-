@@ -27,6 +27,8 @@ var type = "";
 app.use(express.urlencoded({
     extended: true
 }));
+var path = require('path');
+app.use(express.static(path.join(__dirname, 'public')));
 
 const encrypt = (buffer) => {
     // Create an initialization vector
@@ -65,6 +67,11 @@ app.get('/check', function (req, res) {
             type = "";
             res.send("MULTIPLE");
         }
+        else if (type === "IMG_NOT_AVAILABLE") {
+            flag = false;
+            type = "";
+            res.send("IMG_NOT_AVAILABLE");
+        }
     }
     else {
         flag = false;
@@ -74,16 +81,14 @@ app.get('/check', function (req, res) {
 });
 
 function auth(req, res, next) {
-    console.log("apdi token " + token1);
-    if (!token1) return res.status(401).json({ message: "Auth Error" });
-
+    if (!token1) return res.redirect('/');//Auth error
     try {
         const decoded = jwt.verify(token1, process.env.TOKEN_SECRET);
         req.user = decoded.user;
         next();
     } catch (e) {
         console.error(e);
-        res.status(500).send({ message: "Invalid Token" });
+        res.redirect('/');//Invalid Token
     }
 };
 
@@ -123,7 +128,6 @@ app.post('/register', function (req, res, next) {
 app.post('/logIn', function (req, res) {
     const username = req.param("username");
     const password = req.param("password");
-    console.log("request =>> " + username)
     db.collection('Users').findOne({ 'user_name': username }, (err, result) => {
         if (err) console.log("Username does not found" + err)
         if (result != null) {
@@ -131,7 +135,7 @@ app.post('/logIn', function (req, res) {
             const user_id = result._id
             bcrypt.compare(password, pwdhash, function (err, resu) {
                 if (err) return console.log(err)
-                resu ? console.log("Password matched") : res.send("Incorrect credentials")
+                resu ? console.log("Password matched") : res.send("Incorrect_Credentials")
                 if (resu) {
                     const payload = {
                         user: { id: user_id }
@@ -146,7 +150,7 @@ app.post('/logIn', function (req, res) {
                 }
             })
         } else {
-            res.send("User not found please Signup")
+            res.send("User_Not_Found")
         }
     })
 })
@@ -235,7 +239,6 @@ app.post('/ImgPublicMultiple', upload.array('myImage'), (req, res, next) => {
     res.redirect('/publicPortal');
 })
 
-
 app.get('/findImageByIDPublic', (req, res) => {
     console.log(req.param("imageID"))
     var filename = req.param("imageID");
@@ -263,6 +266,7 @@ app.get('/showAllImgIdPublic', (req, res) => {
         res.send(imgArray);
     })
 });
+
 
 
 app.get('/ImageRepo', auth, async (req, res) => {
@@ -337,10 +341,8 @@ app.post('/uploadMultipleImages', auth, upload.array('myImage'), (req, res, next
             }
         })
     })
-
-
     flag = true;
-    type = "SINGLE";
+    type = "MULTIPLE";
     res.redirect('/ImageRepo');
 
 })
@@ -357,7 +359,9 @@ app.get('/findImageByID', auth, (req, res) => {
             res.send(decryptedImg);
 
         } else {
-            res.send("Image Not Available")
+            flag = true;
+            type = "IMG_NOT_AVAILABLE";
+            res.redirect('/ImageRepo');
         }
 
     })
@@ -366,27 +370,31 @@ app.get('/findImageByID', auth, (req, res) => {
 app.get('/showAllImgId', auth, (req, res) => {
     var imgArray = {};
     db.collection('images').find({ user_id: req.user.id }).toArray((err, result) => {
+        if(result != null){
         imgArray = result.map(element => element._id);
-        console.log(imgArray);
-        if (err) return console.log(err)
         res.send(imgArray);
+        }
+        else{
+            res.send('Images_Not_Available');
+        }
     })
 });
 
 app.get('/deleteImageByID', auth, (req, res) => {
     var filename = req.param("deleteImageID");
     var imagePath;
-    db.collection('images').findOne({ '_id': ObjectId(filename), 'user_id': req.user.id }, (err, result) => {
+    db.collection('images').findOne({ '_id': ObjectId(filename), 'user_id': req.user.id }, (err, result) => {        
+        if(err) res.send('Image Not Available or Does Not Belong To User')
         if (result != null) {
             imagePath = result.path.toString()
             fs.unlink(imagePath, (err, result) => {
                 err ? res.send(err) : console.log(result);
                 db.collection('images').deleteOne({ '_id': ObjectId(filename), 'user_id': req.user.id }, (err, result) => {
                     if (err) res.send('Image Not Available or Does Not Belong To User')
-                    res.send('Image deleted Successfully!' + result);
+                    if(result != null )  res.send('Image_Deleted');
                 })
             })
-        } else {
+        } else{
             res.send('Image Not Available or Does Not Belong To User')
         }
     })
@@ -395,18 +403,23 @@ app.get('/deleteImageByID', auth, (req, res) => {
 app.get('/deleteAllImages', auth, (req, res) => {
     var imgArray = {};
     db.collection('images').find({ user_id: req.user.id }).toArray((err, result) => {
-        if (err) res.send('Images Not Available or Does Not Belong To User')
-        if (result == null) res.send('Images Not Available or Does Not Belong To User')
+        if (err) res.send('Images_Not_Available')
+        if(result != null){
         imgArray = result.map(element => element.path);
         imgArray.forEach(imgpath => {
             fs.unlink(imgpath, (err, resul) => {
                 if (err) console.log(err)
                 db.collection('images').deleteOne({ 'path': imgpath, user_id: req.user.id }, (error, resul) => {
-                    error ? res.send(error) : console.log(resul)
+                    error ? res.send("Images_Not_Available") : console.log(resul)
                 })
             })
         })
-        res.send('All The Images Deleted Successfully!')
+        res.send('Images_Deleted')
+    }
+    else{
+        res.send('Images_Not_Available')
+    }
+     
     })
 });
 

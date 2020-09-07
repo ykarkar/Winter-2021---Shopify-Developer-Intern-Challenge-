@@ -3,25 +3,36 @@
 
 <head>
   <meta charset="UTF-8">
-  <title>Winter 2021 - Shopify Developer Intern Challenge</title>
+  <title>Private Images Portal</title>
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
     integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
   <style>
-    .gridContainer {
-      display: grid;
-      grid-template-columns: auto auto;
-      grid-gap: 10px;
-      padding: 10px;
+    .functions {
+      position: relative;
     }
 
-    .gridContainer>div {
-      text-align: center;
-      padding: 20px 0;
-      font-size: 30px;
+    #logout {
+      float: right;
     }
   </style>
   <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
   <script type="text/javascript">
+
+    function loadingFunction() {
+      $.get("http://localhost:3000/check", function (data, status) {
+        console.log(`${data} and status is ${status}`);
+        if (data === 'SINGLE') {
+          window.alert("Image uploaded");
+        }
+        else if (data === 'MULTIPLE') {
+          window.alert("All the Images Uploaded");
+        }
+        else if (data === 'IMG_NOT_AVAILABLE') {
+          window.alert('Incorrect ID');
+        }
+      })
+    }
+
     function logout() {
       const url = 'http://localhost:3000/logout';
       $.get(url, function (data, status) {
@@ -36,7 +47,10 @@
       const url = 'http://localhost:3000/showAllImgId';
       $.get(url, function (data, status) {
         console.log(`${data} and status is ${status}`);
-        if (data) {
+        if (data === 'Images_Not_Available') {
+          document.getElementById("ImageIds").innerHTML = "No Images Available please upload";
+        }
+        else {
           var str = '<ul>'
 
           data.forEach(function (ids) {
@@ -48,150 +62,143 @@
         }
       })
     }
+
+    function deleteImgById() {
+      if ($('#deleteImageID').val() === '') {
+        $('#deleteImageID').attr("placeholder", "Please Enter ID");
+      }
+      else {
+        const url = 'http://localhost:3000/deleteImageByID';
+        const data = { deleteImageID: $('#deleteImageID').val() };
+        $.get(url, data, function (response, status) {
+          if (response === 'Image_Deleted') {
+            window.alert('Image deleted successfully!')
+          }
+          else if (response === 'Image Not Available or Does Not Belong To User') {
+            window.alert('Image Not Available or Does Not Belong To User')
+          }
+          else {
+            window.alert('Something is wrong please try again')
+          }
+        })
+      }
+    }
+
+    function deleteAllImages() {
+      const url = 'http://localhost:3000/deleteAllImages';
+      $.get(url, function (response, status) {
+        if (response === 'Images_Deleted') {
+          window.alert('All the images deleted successfully!')
+        }
+        else if (response === 'Images_Not_Available') {
+          window.alert('There are no images uploaded!')
+        }
+        else {
+          window.alert('Something is wrong please try again')
+        }
+      })
+    }
+
   </script>
 </head>
 
-<body>
+<body onload="loadingFunction()">
 
-  <h3 style="text-align: center;">Welcome to shopify Winter 2021 Developer Intern Challange</h3>
-  <button class="btn btn-warning" style="text-align:right;" onclick="logout()">Log Out</button>
+  <h3 style="text-align: center;">Private Images Portal</h3>
+  <button class="btn btn-success"  onclick="logout()">Log Out</button>
 
+  <div class="functions">
+<br><br>
+    <!--  Uploading Single Image and Multiple Images Section -->
+    <div class="row">
+      <div class="col-sm">
+        <div class="card bg-light mb-3">
+          <div class="card-body">
+            <h5 class="card-title">Upload Single Image</h5>
+            <p class="card-text">
+            <form action="/uploadImages" enctype="multipart/form-data" method="POST">
+              <input class="card-text" type="file" name="myImage" accept="image/*" required />
+              <input class="btn btn-primary" type="submit" value="Upload Single Image" />
+            </form>
+            </p>
+          </div>
+        </div>
+      </div>
+      <div class="col-sm">
+        <div class="card card bg-light mb-3">
+          <div class="card-body">
+            <h5 class="card-title">Upload Multiple Images</h5>
+            <p class="card-text">
+            <form class="second" action="/uploadMultipleImages" enctype="multipart/form-data" method="POST">
+              <input type="file" name="myImage" accept="image/*" multiple required />
+              <input class="btn btn-primary" type="submit" value="Upload Multiple Images" />
+            </form>
+            </p>
 
-  <!--  Uploading Single Image and Multiple Images Section -->
-  <div class="row">
-    <div class="col-sm-6">
-      <div class="card bg-light mb-3">
-        <div class="card-body">
-          <h5 class="card-title">Upload Single Image</h5>
-          <p class="card-text">
-          <form action="/uploadImages" enctype="multipart/form-data" method="POST">
-            <input class="card-text" type="file" name="myImage" accept="image/*" required />
-            <input class="btn btn-primary" type="submit" value="Upload Single Image" />
-          </form>
-          </p>
-
+          </div>
         </div>
       </div>
     </div>
-    <div class="col-sm-6">
-      <div class="card">
-        <div class="card-body">
-          <h5 class="card-title">Upload Multiple Images</h5>
-          <p class="card-text">
-          <form class="second" action="/uploadMultipleImages" enctype="multipart/form-data" method="POST">
-            <input type="file" name="myImage" accept="image/*" multiple required />
-            <input class="btn btn-primary" type="submit" value="Upload Multiple Images" />
-          </form>
-          </p>
+    <!-- End of upload section -->
 
+
+    <div class="row">
+      <div class="col-sm">
+        <div class="card card bg-light mb-3">
+          <div class="card-body">
+            <h5 class="card-title ">Display Ids of All Images</h5>
+            <p class="card-text">
+              <button class="btn btn-primary" style="text-align:right;" onclick="showAllImgId()">Show Ids of all
+                Images</button>
+            <div id="ImageIds"></div>
+            </p>
+          </div>
         </div>
       </div>
-    </div>
-  </div>
-  <!-- End of upload section -->
 
-
-  <div class="row">
-    <div class="col-sm-6">
-      <div class="card">
-        <div class="card-body">
-          <h5 class="card-title">Display Ids of All Images</h5>
-          <p class="card-text">
-            <button class="btn btn-primary" style="text-align:right;" onclick="showAllImgId()">Show Ids of all
-              Images</button>
-          <div id="ImageIds"></div>
-          </p>
-        </div>
-      </div>
-    </div>
-
-    <div class="col-sm-6">
-      <div class="card">
-        <div class="card-body" id="Image">
-          <h5 class="card-title">Open Image By ID</h5>
-          <p class="card-text">
+      <div class="col-sm">
+        <div class="card card bg-light mb-3">
+          <div class="card-body">
+            <h5 class="card-title">Open Image By ID</h5>
+            <p class="card-text">
             <form action="/findImageByID" method="GET">
-            <input type="text" name="imageID" id="imageID" required />
-            <input class="btn btn-primary" type="submit" value="Open Image By Id" />
-            <!-- <button class="btn btn-primary" style="text-align:right;" >Open Image By Id</button> -->
-              </form>
-          </p>
+              <input type="text" name="imageID" id="imageID" required />
+              <input class="btn btn-primary" type="submit" value="Open Image By Id" />
+            </form>
+            </p>
+          </div>
         </div>
       </div>
     </div>
+
+
+    <div class="row">
+      <div class="col-sm">
+        <div class="card card bg-light mb-3">
+          <div class="card-body">
+            <h5 class="card-title">Delete Image By ID</h5>
+            <p class="card-text">
+              <input type="text" name="deleteImageID" id="deleteImageID" required placeholder="Enter Image Id" />
+              <button class="btn btn-primary" style="text-align:right;" onclick="deleteImgById()">Delete Image
+              </button>
+            </p>
+          </div>
+        </div>
+      </div>
+      <div class="col-sm">
+        <div class="card card bg-light mb-3">
+          <div class="card-body">
+            <h5 class="card-title">Delete All Images</h5>
+            <p class="card-text">
+              <button class="btn btn-primary" style="text-align:right;" onclick="deleteAllImages()">Delete All Images
+              </button>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div>
-
-
-  <div class="row">
-    <div class="col-sm-6">
-      <div class="card">
-        <div class="card-body">
-          <h5 class="card-title">Delete Image By ID</h5>
-          <p class="card-text">
-          <form action="/deleteImageByID" method="GET">
-            <input type="text" name="deleteImageID" id="img" required />
-            <input class="btn btn-primary" type="submit" value="Delete Image By ID" />
-          </form>
-          </p>
-
-        </div>
-      </div>
-    </div>
-    <div class="col-sm-6">
-      <div class="card">
-        <div class="card-body">Delete All Images</h5>
-          <p class="card-text">
-          <form action="/deleteAllImages" method="GET">
-            <input class="btn btn-primary" type="submit" value="Delete All Images" />
-          </form>
-          </p>
-        </div>
-      </div>
-    </div>
-  </div>
-
-
-
-  <!-- <div class="card" style="width: 30rem;">
-      <div class="card-body">
-        <h5 class="card-title">Upload Single Images</h5>
-       <h4> <form  action="/uploadImages" enctype="multipart/form-data" method="POST">
-          <input class="card-text" type="file" name="myImage" accept="image/*" required />
-          <input  class="card-link" type="submit" value="Upload Single Image" />
-        </form></h4>
-      </div>
-    </div>
-
-    <div>
-      <form class="second" action="/uploadMultipleImages" enctype="multipart/form-data" method="POST">
-        <input type="file" name="myImage" accept="image/*" multiple required />
-        <input class="btn btn-primary" type="submit" value="Upload Multiple Images" />
-      </form>
-    </div> -->
-
-  <!-- <div>
-      <form action="/showAllImgId" method="GET">
-        <input class="btn btn-primary" type="submit" value="Show Ids of All Images" />
-      </form>
-    </div> -->
-  <!-- <div>
-      <form action="/findImageByID" method="GET">
-        <input type="text" name="imageID" id="img" required />
-        <input class="btn btn-primary" type="submit" value="Open Image By ID" />
-      </form>
-    </div> -->
-  <!-- <div>
-      <form action="/deleteImageByID" method="GET">
-        <input type="text" name="deleteImageID" id="img" required />
-        <input class="btn btn-primary" type="submit" value="Delete Image By ID" />
-      </form>
-    </div> -->
-  <!-- <div>
-      <form action="/deleteAllImages" method="GET">
-        <input class="btn btn-primary" type="submit" value="Delete All Images" />
-      </form>
-    </div> -->
-
 </body>
 
 </html>

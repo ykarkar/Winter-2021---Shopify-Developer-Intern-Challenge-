@@ -1,9 +1,8 @@
 $(document).ready(function () {
 
-  $(".login-form").hide();
-  $(".login").css("background", "none");
-  console.log("js workong");
-
+  $(".signup-form").hide();
+  $(".signup").css("background", "none");
+  
   $(".login").click(function () {
     $(".signup-form").hide();
     $(".login-form").show();
@@ -54,6 +53,12 @@ $(document).ready(function () {
       console.log(`${data} and status is ${status}`);
       if (data === 'LoggedIn') {
         window.location.replace("/ImageRepo");
+      }
+      else if(data === 'User_Not_Found'){
+        $(".account").text('User not found please register')
+      }
+      else if(data === 'Incorrect_Credentials'){
+        $(".account").text('Incorrect Credentials. Please try again')
       }
     })
 
