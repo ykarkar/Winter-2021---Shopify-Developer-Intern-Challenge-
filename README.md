@@ -16,10 +16,15 @@ This is a NodeJs Express Application Running this app in your computer is quite 
 
 Run the following commands and then you are good to go.
 
+To run the npm commands you mush have npm installed as well as nodejs. To check if you have node and npm installed run `node -v` and `npm -v` in your terminal. if you don't have nodejs installed please download it from the below link
+
+`https://nodejs.org/en/`
+
+
 ```bash
 npm i
 ```
-Running `npm i` will install all the libraries needed to run the application.
+Running `npm i` will install all the libraries needed to run this web-application.
 
 MongoDB is must required to run this web app. If you don't have MongoDB installed download and install it from the below link.
 
