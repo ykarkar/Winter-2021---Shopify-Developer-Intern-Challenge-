@@ -1,3 +1,6 @@
+/* 
+@author Yash Amitbhai Karkar <yashkarkar.yk@gmail.com> <https://github.com/ykarkar>
+*/
 $(document).ready(function () {
 
   $(".signup-form").hide();

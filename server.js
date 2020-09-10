@@ -1,3 +1,7 @@
+/* 
+@author Yash Amitbhai Karkar <yashkarkar.yk@gmail.com> <https://github.com/ykarkar>
+*/
+
 // call all the required packages
 const express = require('express')
 const crypto = require('crypto');
@@ -119,7 +123,7 @@ app.post('/register', function (req, res, next) {
             }
         })
     }
-    else{
+    else {
         res.send('Error')
     }
 })
