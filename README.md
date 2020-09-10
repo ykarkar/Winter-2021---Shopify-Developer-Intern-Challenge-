@@ -16,7 +16,7 @@ This is a NodeJs Express Application Running this app in your computer is quite 
 
 Run the following commands and then you are good to go.
 
-To run the npm commands you mush have npm installed as well as nodejs. To check if you have node and npm installed run `node -v` and `npm -v` in your terminal. if you don't have nodejs installed please download it from the below link
+To run the npm commands you must have npm installed as well as nodejs. To check if you have node and npm installed run `node -v` and `npm -v` in your terminal. if you don't have nodejs installed please download it from the below link
 
 `https://nodejs.org/en/`
 
@@ -30,7 +30,7 @@ MongoDB is must required to run this web app. If you don't have MongoDB installe
 
 `https://fastdl.mongodb.org/windows/mongodb-windows-x86_64-4.4.0-signed.msi`
 
-To run the web-application run `npm server.js` command in your terminal and then simply open `http://localhost:3000/` on any browser
+To run the web-application run `node server.js` command in your terminal and then simply open `http://localhost:3000/` on any browser
 
 ## Concepts used in the WebApplication
 1. MongoClient:- To save the images uploaded in the database
