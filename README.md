@@ -26,12 +26,11 @@ npm i
 ```
 Running `npm i` will install all the libraries needed to run this web-application.
 
-MongoDB is must required to run this web app. If you don't have MongoDB installed download and install it from the below link.
+MongoDB is must required to run this web app. If you don't have MongoDB installed download and install it from the below link. Collections will be made by itself as you will run the web-application.
 
 `https://fastdl.mongodb.org/windows/mongodb-windows-x86_64-4.4.0-signed.msi`
 
-Collections will be made by itself as you will run the web-application.
-
+To run the web-application run `npm server.js` command in your terminal and then simply open `http://localhost:3000/` on any browser
 
 ## Concepts used in the WebApplication
 1. MongoClient:- To save the images uploaded in the database
