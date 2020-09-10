@@ -344,6 +344,8 @@ app.get('/findImageByID', auth, (req, res) => {
     db.collection('privateImages').findOne({ '_id': ObjectId(filename), user_id: req.user.id }, (err, result) => {
         if (err) res.send("Image Not Available error" + err)
         if (result != null) {
+            flag = false;
+            type = "";
             var decryptedImg = decrypt(result.image.buffer);
             res.contentType('image/jpeg');
             res.send(decryptedImg);
