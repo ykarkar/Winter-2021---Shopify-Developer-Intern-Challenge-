@@ -66,12 +66,18 @@
         console.log(`${data} and status is ${status}`);
         if (data === 'SINGLE') {               
           window.alert("Image uploaded");
+          data='';
         }
         else if (data === 'MULTIPLE') {
           window.alert("All the Images Uploaded");
+          data='';
         }
         else if (data === 'IMG_NOT_AVAILABLE') {
           window.alert('Incorrect ID');
+          data='';
+        }
+        else if( data === 'NO'){
+          return;
         }
       })
     }
@@ -192,7 +198,7 @@
       <div class='individualSection'>
         <h5 class="">Open Image By ID</h5>
         <form action="/findImageByID" class='row' method="GET">
-          <input type="text" name="imageID"  class="col" id="imageID" required />          
+          <input type="text" name="imageID"  class="col" id="imageID" required placeholder="Paste the image ID" />          
           <input class="btn  col" type="submit" value="Open Image By Id" />
         </form>
       </div>
